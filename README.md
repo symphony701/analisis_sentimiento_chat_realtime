@@ -108,7 +108,7 @@ Toda la arquitectura es modular y extensible, ideal para escalar o migrar a serv
 Las métricas pueden visualizarse en tiempo real para hacer análisis de comunidad, comportamiento, y engagement.
 
 ## 💼 Autor y Contacto
-Desarrollado por symphony701 como demostración técnica para habilidades en Data Engineering.
+Desarrollado por Sebastian Roque Neciosup como demostración técnica para habilidades en Data Engineering.
 🔍 Buscando oportunidades como Data Engineer Junior.
 
 LinkedIn: [https://www.linkedin.com/in/tu-linkedin/](https://www.linkedin.com/in/sebrn/)
