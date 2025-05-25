@@ -98,12 +98,6 @@ Ironía: ironic / not ironic
 ## 🧪 Ejemplo de Flujo
 ![Vista general del pipeline](images/arquitectura_general.jpeg)
 
-## 🔍 Observabilidad
-Herramienta	Descripción
-Flink Dashboard	Monitoreo de trabajos en localhost:8081
-Apache Druid UI	Consultas OLAP y monitoreo de segmentos
-Superset UI	Dashboards en tiempo real en localhost:8088
-Logging	Logs detallados desde Flink y Flask
 
 ## 📝 Notas Finales
 El sistema es tolerante a fallos gracias a los checkpoints automáticos de Flink.
