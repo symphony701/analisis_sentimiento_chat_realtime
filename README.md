@@ -1,4 +1,4 @@
-# 📊 Real-Time Sentiment Analysis of YouTube Live Chat (Spanish)
+# 📊 Real-Time Sentiment Analysis of YouTube Live Chat
 Este proyecto implementa un **pipeline de análisis de sentimiento en tiempo real** para mensajes de chat en vivo de transmisiones de YouTube en español. Usa una arquitectura de microservicios completamente contenedorizada con Docker Compose.
 
 🎯 Además, este sistema fue diseñado como una prueba de concepto para mostrar habilidades prácticas en ingeniería de datos en tiempo real y procesamiento de flujo.
