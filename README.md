@@ -65,23 +65,23 @@ chat-live-topic-processed
 Se respeta el orden de dependencias: Zookeeper → Kafka → Servicios
 ```
 
-📥 Flujo de Datos
-Ingesta:
+## 📥 Flujo de Datos
+### Ingesta:
 yt-producer/consumer_yt.py extrae mensajes en tiempo real del chat de YouTube y los publica en Kafka.
 
 ![Ingesta](images/chat_yt.jpeg)
 ![Ingesta_yt](images/yt_producer.jpeg)
 
-Procesamiento:
+### Procesamiento:
 flink/consumer_live_chat.py consume desde Kafka, llama a la API Flask (model-server/) y adjunta el sentimiento.
 
 ![Procesamiento](images/flink.jpeg)
 
-Almacenamiento OLAP:
+### Almacenamiento OLAP:
 Los mensajes procesados se publican en Kafka y luego se insertan en Apache Druid para permitir consultas eficientes.
 ![carga](images/druid.jpeg)
 
-Visualización:
+### Visualización:
 Los datos en Druid se visualizan mediante Apache Superset, con dashboards de métricas en tiempo real.
 
 ![Visualizacion](images/superset.jpeg)
