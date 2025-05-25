@@ -111,4 +111,4 @@ Las métricas pueden visualizarse en tiempo real para hacer análisis de comunid
 Desarrollado por Sebastian Roque Neciosup como demostración técnica para habilidades en Data Engineering.
 🔍 Buscando oportunidades como Data Engineer Junior.
 
-LinkedIn: [LinkedIn](https://www.linkedin.com/in/sebrn/)
+LinkedIn: [Sebastian Roque Neciosup](https://www.linkedin.com/in/sebrn/)
