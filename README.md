@@ -3,13 +3,12 @@ Este proyecto implementa un **pipeline de análisis de sentimiento en tiempo rea
 
 🎯 Además, este sistema fue diseñado como una prueba de concepto para mostrar habilidades prácticas en ingeniería de datos en tiempo real y procesamiento de flujo.
 
-## 🔗 Repositorio
-👉 [Enlace al repositorio de GitHub](https://github.com/tuusuario/aqui-tu-repo) ← *(pendiente de agregar)*
-
+## 🔗 Documentación
+https://deepwiki.com/symphony701/analisis_sentimiento_chat_realtime
 ---
 
 ## 📁 Estructura del Proyecto
-
+```
 ├── flink/ # Trabajos de Apache Flink (PyFlink)
 ├── model-server/ # API Flask con el modelo de análisis de sentimiento
 ├── yt-producer/ # Productor de mensajes desde el chat en vivo de YouTube
@@ -17,6 +16,7 @@ Este proyecto implementa un **pipeline de análisis de sentimiento en tiempo rea
 ├── druid/ # Apache Druid (almacén OLAP)
 ├── superset/ # Apache Superset (dashboards)
 └── LICENSE
+```
 ---
 
 ## 🛠️ Tecnologías Utilizadas
@@ -69,14 +69,22 @@ Se respeta el orden de dependencias: Zookeeper → Kafka → Servicios
 Ingesta:
 yt-producer/consumer_yt.py extrae mensajes en tiempo real del chat de YouTube y los publica en Kafka.
 
+![Ingesta](images/chat_yt.jpeg)
+![Ingesta_yt](images/yt_producer.jpeg)
+
 Procesamiento:
 flink/consumer_live_chat.py consume desde Kafka, llama a la API Flask (model-server/) y adjunta el sentimiento.
 
+![Procesamiento](images/flink.jpeg)
+
 Almacenamiento OLAP:
 Los mensajes procesados se publican en Kafka y luego se insertan en Apache Druid para permitir consultas eficientes.
+![carga](images/druid.jpeg)
 
 Visualización:
 Los datos en Druid se visualizan mediante Apache Superset, con dashboards de métricas en tiempo real.
+
+![Visualizacion](images/superset.jpeg)
 
 ## 🧠 API de Análisis de Sentimiento
 Endpoint: POST /analyze
@@ -88,17 +96,7 @@ Polaridad: positive, negative, neutral
 Ironía: ironic / not ironic
 
 ## 🧪 Ejemplo de Flujo
-mermaid
-Copiar
-Editar
-graph LR
-    A[YouTube Chat] -->|chat_downloader| B[Kafka Topic: chat-live-topic]
-    B --> C[Apache Flink]
-    C -->|HTTP| D[Flask Sentiment API]
-    D --> C
-    C --> E[Kafka Topic: chat-live-topic-processed]
-    E --> F[Apache Druid]
-    F --> G[Apache Superset]
+![Vista general del pipeline](images/arquitectura_general.jpeg)
 
 ## 🔍 Observabilidad
 Herramienta	Descripción
@@ -114,3 +112,8 @@ Toda la arquitectura es modular y extensible, ideal para escalar o migrar a serv
 
 Las métricas pueden visualizarse en tiempo real para hacer análisis de comunidad, comportamiento, y engagement.
 
+## 💼 Autor y Contacto
+Desarrollado por symphony701 como demostración técnica para habilidades en Data Engineering.
+🔍 Buscando oportunidades como Data Engineer Junior.
+
+LinkedIn: [https://www.linkedin.com/in/tu-linkedin/](https://www.linkedin.com/in/sebrn/)
