@@ -1,0 +1,130 @@
+version: '3.8'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 2181:2181
+  
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      #KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_INTERNAL://kafka:29092
+      # Aqui definimos tanto el puerto interno como el externo para que se exponga a otro docker como por ejemplo el docker de druid
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://host.docker.internal:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    
+    ports:
+      - "9092:9092"
+      - "29092:29092" # Exponer el puerto 29092 para Kafka externo
+  init-kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - kafka
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "kafka:9092", "--list"]
+      interval: 10s
+      retries: 5
+    entrypoint: [ "/bin/sh", "-c" ]
+    # Esperamos a que Kafka esté disponible antes de crear los topics
+    # y luego creamos los topics
+    # y mantenemos el contenedor en ejecución.
+    # ¿Para qué? Para que el contenedor no se detenga inmediatamente luego de crear los topics.
+    # Y así lograr que se ejecute el yt-producer que depende de los topics.
+    command: |
+      "
+      echo 'Esperando a que Kafka esté disponible...'
+      while ! kafka-topics --bootstrap-server kafka:9092 --list; do
+        sleep 1
+      done
+      echo 'Kafka está disponible. Creando topics...'
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic chat-live-topic --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:9092 --create --if-not-exists --topic chat-live-topic-processed --replication-factor 1 --partitions 1
+      echo 'Topics creados exitosamente:'
+      kafka-topics --bootstrap-server kafka:9092 --list
+      while true; do sleep 3600; done
+      "
+  
+  yt-producer:
+    container_name: yt-producer
+    build:
+      context: ./yt-producer
+      dockerfile: Dockerfile
+    depends_on:
+      - init-kafka
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+
+
+  flink-jobmanager:
+      build:
+        context: ./flink
+      container_name: jobmanager
+      depends_on:
+        - kafka
+      ports:
+        - "8081:8081"   # Dashboard de Flink, podremos acceder a el desde localhost:8081
+      environment:
+        - JOB_MANAGER_RPC_ADDRESS=jobmanager
+      command: jobmanager
+      volumes:
+      - ./flink/jobs:/opt/flink/jobs
+      entrypoint: >
+        /bin/bash -c "
+          apt-get update && apt-get install -y python3 python3-pip && 
+          ln -sf /usr/bin/python3 /usr/bin/python &&
+          pip3 install apache-flink==1.17.1 requests &&
+          /docker-entrypoint.sh jobmanager
+        "
+
+
+  flink-taskmanager:
+    build:
+      context: ./flink
+    container_name: taskmanager
+    depends_on:
+      - flink-jobmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+      - TASK_MANAGER_NUMBER_OF_TASK_SLOTS=2
+    command: taskmanager
+    entrypoint: >
+      /bin/bash -c "
+        apt-get update && apt-get install -y python3 python3-pip && 
+        ln -sf /usr/bin/python3 /usr/bin/python &&
+        pip3 install apache-flink==1.17.1 requests &&
+        /docker-entrypoint.sh taskmanager
+      "
+
+
+  model-flask-server:
+    build:
+      context: ./model-server
+    volumes:
+      - ./model-server:/app
+    container_name: model-flask-server 
+    ports:
+      - "5000:5000"
+    depends_on:
+      - kafka
+    environment:
+      - PYTHONUNBUFFERED=1
+
+
+volumes:
+  kafka_data:
+

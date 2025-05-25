@@ -1,0 +1,16 @@
+FROM apache/flink:1.17.1-scala_2.12-java11
+
+#Instalamos Python, pip3, wget y certificados SSL
+#El certificado SSL es necesario para levantar el conector Kafka
+#También instalamos python3 y pip3 para poder ejecutar jobs de Python
+RUN apt-get update && \
+    apt-get install -y python3 python3-pip wget ca-certificates && \
+    pip3 install --no-cache-dir apache-flink==1.17.1
+
+#Descargamos el conector Kafka en la carpeta usrlib estándar
+RUN mkdir -p "${FLINK_HOME}/usrlib" && \
+    wget -q -P "${FLINK_HOME}/usrlib" \
+      https://repo1.maven.org/maven2/org/apache/flink/flink-connector-kafka/1.17.1/flink-connector-kafka-1.17.1.jar
+
+#Copiamos nuestros jobs de Flink a la carpeta /opt/flink/jobs/ del contenedor
+COPY jobs/ /opt/flink/jobs/

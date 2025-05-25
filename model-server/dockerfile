@@ -1,0 +1,21 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+
+#Instalamos herramientas de compilación y headers de Python
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      build-essential gcc python3-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+#Copiamos el archivo requirements.txt y el resto de la aplicación
+COPY requirements.txt ./
+COPY . .
+
+#Instalamos las dependencias de Python
+# --no-cache-dir evita que pip guarde en caché los paquetes descargados
+RUN pip install --no-cache-dir -r requirements.txt
+
+#Exponemos el puerto 5000 para la aplicación Flask
+EXPOSE 5000
+CMD ["python", "app.py"]
