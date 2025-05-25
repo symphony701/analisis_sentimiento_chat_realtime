@@ -5,6 +5,7 @@ Este proyecto implementa un **pipeline de análisis de sentimiento en tiempo rea
 
 ## 🔗 Documentación
 https://deepwiki.com/symphony701/analisis_sentimiento_chat_realtime
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/symphony701/analisis_sentimiento_chat_realtime)
 ---
 
 ## 📁 Estructura del Proyecto
