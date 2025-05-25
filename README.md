@@ -63,3 +63,54 @@ chat-live-topic
 chat-live-topic-processed
 
 Se respeta el orden de dependencias: Zookeeper → Kafka → Servicios
+```
+
+📥 Flujo de Datos
+Ingesta:
+yt-producer/consumer_yt.py extrae mensajes en tiempo real del chat de YouTube y los publica en Kafka.
+
+Procesamiento:
+flink/consumer_live_chat.py consume desde Kafka, llama a la API Flask (model-server/) y adjunta el sentimiento.
+
+Almacenamiento OLAP:
+Los mensajes procesados se publican en Kafka y luego se insertan en Apache Druid para permitir consultas eficientes.
+
+Visualización:
+Los datos en Druid se visualizan mediante Apache Superset, con dashboards de métricas en tiempo real.
+
+## 🧠 API de Análisis de Sentimiento
+Endpoint: POST /analyze
+Categorías Detectadas
+Emociones: anger, joy, sadness, fear, disgust, surprise
+
+Polaridad: positive, negative, neutral
+
+Ironía: ironic / not ironic
+
+## 🧪 Ejemplo de Flujo
+mermaid
+Copiar
+Editar
+graph LR
+    A[YouTube Chat] -->|chat_downloader| B[Kafka Topic: chat-live-topic]
+    B --> C[Apache Flink]
+    C -->|HTTP| D[Flask Sentiment API]
+    D --> C
+    C --> E[Kafka Topic: chat-live-topic-processed]
+    E --> F[Apache Druid]
+    F --> G[Apache Superset]
+
+## 🔍 Observabilidad
+Herramienta	Descripción
+Flink Dashboard	Monitoreo de trabajos en localhost:8081
+Apache Druid UI	Consultas OLAP y monitoreo de segmentos
+Superset UI	Dashboards en tiempo real en localhost:8088
+Logging	Logs detallados desde Flink y Flask
+
+## 📝 Notas Finales
+El sistema es tolerante a fallos gracias a los checkpoints automáticos de Flink.
+
+Toda la arquitectura es modular y extensible, ideal para escalar o migrar a servicios en la nube.
+
+Las métricas pueden visualizarse en tiempo real para hacer análisis de comunidad, comportamiento, y engagement.
+
